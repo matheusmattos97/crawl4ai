@@ -139,6 +139,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
     
 RUN playwright install --with-deps chromium
 
+COPY patch_playwright.py ${APP_HOME}/patch_playwright.py
+
 COPY deploy/docker/* ${APP_HOME}/
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
@@ -152,5 +154,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     curl -f http://localhost:8000/health || exit 1'
 
 EXPOSE 6379
-CMD ["supervisord", "-c", "supervisord.conf"]
+ENTRYPOINT ["sh", "-c", "python ${APP_HOME}/patch_playwright.py && exec supervisord -c ${APP_HOME}/supervisord.conf"]
     
